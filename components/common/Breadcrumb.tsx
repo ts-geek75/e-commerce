@@ -14,21 +14,27 @@ interface Props {
 
 const Breadcrumb: React.FC<Props> = ({ items }) => {
   return (
-    <nav className="my-5 text-sm text-gray-600">
+    <nav className="my-5 text-sm text-primary-text-gray">
       <ol className="flex items-center gap-2">
-        {items.map((item, index) => (
-          <li key={index} className="flex items-center gap-2">
-            {index !== 0 && <span>{'>'}</span>}
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          return (
+            <li key={index} className="flex items-center gap-2">
+              {index !== 0 && <span className="text-primary-text-gray">{">"}</span>}
 
-            {item.href ? (
-              <Link href={item.href} className="hover:text-black">
-                {item.label}
-              </Link>
-            ) : (
-              <span className="text-black">{item.label}</span>
-            )}
-          </li>
-        ))}
+              {item.href && !isLast ? (
+                <Link
+                  href={item.href}
+                  className="text-primary-text-gray hover:text-primary-text"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span className="text-primary-text font-semibold">{item.label}</span>
+              )}
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );

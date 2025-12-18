@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import Navbar from "@/components/Navbar";
 import ProductCategoryDisplay from "@/components/common/CategoryGrid";
-import ProductGrid from "@/components/common/ProductGrid";
+import ProductGrid from "@/modules/products/components/ProductGrid";
 import { useGetProducts } from "../../products/hooks";
 
 const UserHomePage: React.FC = () => {
@@ -17,7 +16,6 @@ const UserHomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
       <div className="mt-5 pt-16 md:pt-20 px-4 space-y-16 pb-9">
         <ProductCategoryDisplay categories={categories} />
         <ProductGrid products={products} loading={loading} />

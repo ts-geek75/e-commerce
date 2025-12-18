@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import jwt from "jsonwebtoken";
 import Loader from "@/components/common/loader";
+import Navbar from "@/components/Navbar";
 import UserHomePage from "@/modules/home/user/UserHomePage";
 import AdminHomePage from "@/modules/home/admin/AdminHomePage";
 
@@ -25,7 +26,12 @@ const Dashboard: React.FC = () => {
     return <AdminHomePage />;
   }
 
-  return <UserHomePage />;
+  return (
+    <>
+      <Navbar />
+      <UserHomePage />
+    </>
+  );
 };
 
 export default Dashboard;
