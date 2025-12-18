@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { query } from "@/lib/db";
+
 
 export const GET = async (req: NextRequest) => {
   try {
     const { searchParams } = new URL(req.url);
 
     const id = searchParams.get("id");
-    const category = searchParams.get("category");
+    const search = searchParams.get("search");
 
     if (id) {
       const result = await query(
@@ -21,10 +21,14 @@ export const GET = async (req: NextRequest) => {
       );
     }
 
-    if (category) {
+    if (search) {
       const result = await query(
-        "SELECT * FROM products WHERE category = $1 ORDER BY created_at DESC",
-        [category]
+        `SELECT * FROM products
+         WHERE name ILIKE $1
+         OR category ILIKE $1
+         OR description ILIKE $1
+         ORDER BY created_at DESC`,
+        [`%${search}%`]
       );
 
       return NextResponse.json(
@@ -33,59 +37,45 @@ export const GET = async (req: NextRequest) => {
       );
     }
 
+    const categories = searchParams.getAll("category");
+    const materials = searchParams.getAll("material");
+    const prices = searchParams.getAll("price");
+
+    const conditions: string[] = [];
+    const values: (string | number)[] = [];
+
+    if (categories.length) {
+      values.push(categories);
+      conditions.push(`category = ANY($${values.length})`);
+    }
+
+    if (materials.length) {
+      values.push(materials);
+      conditions.push(`material = ANY($${values.length})`);
+    }
+
+    if (prices.length) {
+      const priceConditions = prices.map((range) => {
+        const [min, max] = range.split("-").map(Number);
+        values.push(min, max);
+        return `(price BETWEEN $${values.length - 1} AND $${values.length})`;
+      });
+
+      conditions.push(`(${priceConditions.join(" OR ")})`);
+    }
+
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
+
     const result = await query(
-      "SELECT * FROM products ORDER BY created_at DESC",
-      []
+      `SELECT * FROM products ${whereClause} ORDER BY created_at DESC`,
+      values
     );
 
     return NextResponse.json(
       { products: result.rows },
       { status: 200 }
-    );
-  } catch {
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
-  }
-};
-
-export const POST = async (req: NextRequest) => {
-  try {
-    const {
-      name,
-      description,
-      price,
-      category,
-      image_url,
-      stock,
-    } = await req.json();
-
-    if (!name || !price || !category || !image_url) {
-      return NextResponse.json(
-        { message: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    const result = await query(
-      `INSERT INTO products
-       (name, description, price, category, image_url, stock)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [
-        name,
-        description || "",
-        price,
-        category,
-        image_url,
-        stock || 0,
-      ]
-    );
-
-    return NextResponse.json(
-      { product: result.rows[0] },
-      { status: 201 }
     );
   } catch {
     return NextResponse.json(

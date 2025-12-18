@@ -2,21 +2,42 @@
 
 import React from "react";
 import { useSearchParams } from "next/navigation";
+
 import Breadcrumb from "@/components/common/Breadcrumb";
 import { ProductGrid } from "@/modules/products/components";
 import useGetProducts from "@/modules/products/hooks/useGetProducts";
 
 const ProductsPage: React.FC = () => {
   const searchParams = useSearchParams();
-  const categoryParam = searchParams.get("category") || undefined;
 
-  const { products, loading } = useGetProducts(categoryParam);
+  const id = searchParams.get("id");
+
+  const filters = {
+    id: id || undefined,
+    search: searchParams.get("search") || undefined,
+    category: searchParams.getAll("category"),
+    material: searchParams.getAll("material"),
+    price: searchParams.getAll("price"),
+  };
+
+  const normalizedFilters = Object.fromEntries(
+    Object.entries(filters).filter(
+      ([, value]) =>
+        value !== undefined &&
+        !(Array.isArray(value) && value.length === 0)
+    )
+  );
+
+  const { products, loading } = useGetProducts(normalizedFilters);
 
   const breadcrumbItems = [
     { label: "Home", href: "/home" },
     { label: "Shop", href: "/products" },
-    ...(categoryParam
-      ? [{ label: categoryParam }]
+    ...(filters.category.length
+      ? [{ label: filters.category.join(", ") }]
+      : []),
+    ...(filters.search
+      ? [{ label: `Search: ${filters.search}` }]
       : []),
   ];
 

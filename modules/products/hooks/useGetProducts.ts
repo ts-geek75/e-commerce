@@ -5,8 +5,8 @@ interface Product {
   name: string;
   price: string;
   category: string;
-  image_url: string; 
-  images: string[];  
+  image_url: string;
+  images: string[];
   description: string;
   stock?: number;
   material: string;
@@ -15,19 +15,37 @@ interface Product {
   editors_note: string;
 }
 
-const useGetProducts = (category?: string, id?: string) => {
+type ProductFilters = {
+  id?: string;
+  search?: string;
+  category?: string[];
+  material?: string[];
+  price?: string[];
+};
+
+const useGetProducts = (filters: ProductFilters = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        let url = "/api/products";
-        const params: string[] = [];
+        setLoading(true);
 
-        if (category) params.push(`category=${encodeURIComponent(category)}`);
-        if (id) params.push(`id=${encodeURIComponent(id)}`);
-        if (params.length) url += `?${params.join("&")}`;
+        const params = new URLSearchParams();
+
+        if (filters.id) {
+          params.set("id", filters.id);
+        } else {
+          filters.search && params.set("search", filters.search);
+          filters.category?.forEach((v) => params.append("category", v));
+          filters.material?.forEach((v) => params.append("material", v));
+          filters.price?.forEach((v) => params.append("price", v));
+        }
+
+        const url = params.toString()
+          ? `/api/products?${params.toString()}`
+          : "/api/products";
 
         const res = await fetch(url);
         const data = await res.json();
@@ -39,15 +57,14 @@ const useGetProducts = (category?: string, id?: string) => {
             : [],
         });
 
-        if (id && data.product) {
-          setProducts([normalizeProduct(data.product)]);
-        } else if (data.products) {
-          setProducts(data.products.map(normalizeProduct));
+        if (filters.id) {
+          setProducts(data.product ? [normalizeProduct(data.product)] : []);
         } else {
-          setProducts([]);
+          setProducts(
+            data.products ? data.products.map(normalizeProduct) : []
+          );
         }
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
+      } catch {
         setProducts([]);
       } finally {
         setLoading(false);
@@ -55,7 +72,13 @@ const useGetProducts = (category?: string, id?: string) => {
     };
 
     fetchProducts();
-  }, [category, id]);
+  }, [
+    filters.id,
+    filters.search,
+    filters.category?.join(","),
+    filters.material?.join(","),
+    filters.price?.join(","),
+  ]);
 
   return { products, loading };
 };

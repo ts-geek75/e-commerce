@@ -5,6 +5,7 @@ import { useGetProducts } from "../hooks";
 import { Breadcrumb, Loader } from "@/components/common";
 import { Minus, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useShoppingCart } from "../../Cart/hooks";
 
 interface Product {
   id: number;
@@ -25,9 +26,10 @@ interface Props {
 }
 
 const ProductDetails: React.FC<Props> = ({ productId }) => {
-  const { products, loading } = useGetProducts(undefined, productId);
+  const { products, loading } = useGetProducts({ id: productId });
   const product = products[0];
 
+  const { addItem } = useShoppingCart();
   const [quantity, setQuantity] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -48,9 +50,19 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
   };
   const breadcrumbItems = [
     { label: "Home", href: "/home" },
-    { label: product.category,    href: `/products?category=${product.category}`, },
+    { label: product.category, href: `/products?category=${product.category}` },
     { label: product.name, href: "#" },
   ];
+  const handleAddToBag = () => {
+    addItem({
+      id: product.id.toString(),
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      quantity,
+      image: product.images[0] || "", 
+    });
+  };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const scrollLeft = e.currentTarget.scrollLeft;
@@ -68,7 +80,6 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
 
         <div className="flex flex-col items-center w-full">
           <div className="w-full flex flex-col items-center md:py-8">
-          
             {/* Left Column: Image Section */}
             <div className="flex flex-col w-full">
               {/* MOBILE VIEW: Horizontal Carousel */}
@@ -77,7 +88,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
                   ref={scrollRef}
                   onScroll={handleScroll}
                   style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
-                  className="flex overflow-x-auto snap-x snap-mandatory " 
+                  className="flex overflow-x-auto snap-x snap-mandatory "
                 >
                   {product.images.map((img, idx) => (
                     <div
@@ -99,7 +110,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
                     <button
                       key={idx}
                       onClick={() => handleDotClick(idx)}
-                      className="p-1" 
+                      className="p-1"
                     >
                       <div
                         className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
@@ -116,9 +127,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
               {/* DESKTOP VIEW: Vertical Scrolling Stack */}
               <div className="hidden md:flex flex-col gap-4">
                 {product.images.map((img, idx) => (
-                  <div
-                    key={idx}
-                    >
+                  <div key={idx}>
                     <img
                       src={img}
                       alt={`${product.name} ${idx}`}
@@ -208,7 +217,10 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
               </div>
             </div>
 
-            <Button className="w-full bg-[#1a1a1a] text-white py-7 rounded-none text-[12px] uppercase tracking-[0.25em] font-medium hover:bg-black transition-all">
+            <Button
+              className="w-full bg-[#1a1a1a] text-white py-7 rounded-none text-[12px] uppercase tracking-[0.25em] font-medium hover:bg-black transition-all"
+              onClick={handleAddToBag} // add onClick here
+            >
               Add to Bag
             </Button>
           </div>
@@ -268,10 +280,8 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
                 </p>
               </div>
             </details>
-           
           </div>
         </div>
-
       </div>
     </div>
   );

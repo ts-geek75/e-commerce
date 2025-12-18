@@ -1,14 +1,28 @@
-import React from "react";
-import Link from "next/link";
-import { Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
+"use client";
 
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Heart, Menu, Search, X, ShoppingBag as ShoppingBagIcon } from "lucide-react"; // Rename icon to avoid conflict
 import { Button } from "@/components/ui/button";
+import ShoppingBag from "@/modules/Cart/components/ShoppingCart";
 
 const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
   };
 
   return (
@@ -21,7 +35,11 @@ const Navbar: React.FC = () => {
             onClick={toggleMenu}
             className="text-[#1A1A1A] hover:bg-transparent"
           >
-            {isOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
+            {isOpen ? (
+              <X size={22} strokeWidth={1.5} />
+            ) : (
+              <Menu size={22} strokeWidth={1.5} />
+            )}
           </Button>
         </div>
 
@@ -59,10 +77,15 @@ const Navbar: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={toggleSearch}
             className="text-stone-700 hover:bg-transparent hover:text-[#C5A059]"
           >
-            <Search size={18} strokeWidth={1.5} />
-          </Button>
+            {isSearchOpen ? (
+              <X size={18} strokeWidth={1.5} />
+            ) : (
+              <Search size={18} strokeWidth={1.5} />
+            )}
+          </Button>         
           <Button
             variant="ghost"
             size="icon"
@@ -70,19 +93,42 @@ const Navbar: React.FC = () => {
           >
             <Heart size={18} strokeWidth={1.5} />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-stone-700 hover:bg-transparent hover:text-[#C5A059]"
-          >
-            <ShoppingBag size={18} strokeWidth={1.5} />
-          </Button>
+          <ShoppingBag />
         </div>
       </div>
 
       <div
+        className={`absolute left-0 top-full w-full border-b border-stone-200 bg-[#FBF9F6] px-4 py-4 transition-all duration-300 ease-in-out ${
+          isSearchOpen
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-4 opacity-0"
+        }`}
+      >
+        <form
+          onSubmit={handleSearchSubmit}
+          className="mx-auto max-w-3xl relative"
+        >
+          <input
+            type="text"
+            placeholder="Search for jewelry"
+            className="w-full bg-transparent border-b border-stone-300 py-2 text-sm font-light tracking-wide outline-none placeholder:text-stone-400 focus:border-[#C5A059]"
+            autoFocus={isSearchOpen}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="absolute right-0 bottom-2 text-[10px] font-bold uppercase tracking-widest text-stone-500 hover:text-[#C5A059]"
+          >
+            <Search size={14} strokeWidth={1.5} />
+          </button>
+        </form>
+      </div>
+      <div
         className={`absolute left-0 top-16 w-full border-b border-stone-200 bg-[#FBF9F6] transition-all duration-300 ease-in-out md:hidden ${
-          isOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-4 opacity-0"
+          isOpen
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-4 opacity-0"
         }`}
       >
         <div className="flex flex-col items-center gap-8 py-12">

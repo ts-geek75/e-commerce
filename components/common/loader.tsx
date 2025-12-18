@@ -2,7 +2,7 @@ import React from "react";
 
 const Loader: React.FC = () => {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-[#FBF9F6] p-8">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center  p-8">
       <div className="relative flex items-center justify-center">
         <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-t-2 border-[#C5A059]" />
         <div className="absolute inset-0 flex items-center justify-center">
