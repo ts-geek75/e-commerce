@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 interface Product {
-  id: number;
+  uuid: string; 
   name: string;
   price: string;
   category: string;
@@ -16,7 +16,7 @@ interface Product {
 }
 
 type ProductFilters = {
-  id?: string;
+  uuid?: string; 
   search?: string;
   category?: string[];
   material?: string[];
@@ -34,8 +34,8 @@ const useGetProducts = (filters: ProductFilters = {}) => {
 
         const params = new URLSearchParams();
 
-        if (filters.id) {
-          params.set("id", filters.id);
+        if (filters.uuid) {
+          params.set("id", filters.uuid); 
         } else {
           filters.search && params.set("search", filters.search);
           filters.category?.forEach((v) => params.append("category", v));
@@ -52,12 +52,13 @@ const useGetProducts = (filters: ProductFilters = {}) => {
 
         const normalizeProduct = (prod: any): Product => ({
           ...prod,
+          id: prod.uuid, 
           images: prod.image_url
             ? prod.image_url.split(",").map((img: string) => img.trim())
             : [],
         });
 
-        if (filters.id) {
+        if (filters.uuid) {
           setProducts(data.product ? [normalizeProduct(data.product)] : []);
         } else {
           setProducts(
@@ -73,7 +74,7 @@ const useGetProducts = (filters: ProductFilters = {}) => {
 
     fetchProducts();
   }, [
-    filters.id,
+    filters.uuid,
     filters.search,
     filters.category?.join(","),
     filters.material?.join(","),

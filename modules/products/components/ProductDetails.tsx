@@ -5,10 +5,10 @@ import { useGetProducts } from "../hooks";
 import { Breadcrumb, Loader } from "@/components/common";
 import { Minus, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useShoppingCart } from "../../Cart/hooks";
+import { useCart } from "@/modules/cart/context";
 
 interface Product {
-  id: number;
+  uuid: string;
   name: string;
   price: number;
   category: string;
@@ -26,10 +26,10 @@ interface Props {
 }
 
 const ProductDetails: React.FC<Props> = ({ productId }) => {
-  const { products, loading } = useGetProducts({ id: productId });
+  const { products, loading } = useGetProducts({ uuid: productId });
   const product = products[0];
 
-  const { addItem } = useShoppingCart();
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -55,13 +55,14 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
   ];
   const handleAddToBag = () => {
     addItem({
-      id: product.id.toString(),
+      id: product.uuid,
       name: product.name,
       category: product.category,
       price: product.price,
       quantity,
-      image: product.images[0] || "", 
+      image: product.images[0] || "",
     });
+    console.log("Added to bag button clicked");
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {

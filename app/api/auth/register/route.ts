@@ -12,14 +12,19 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const result = await query(
-      "INSERT INTO users (username, email, password, isAdmin) VALUES ($1, $2, $3, $4) RETURNING id, username, email, isAdmin",
+      `INSERT INTO users (username, email, password, isAdmin)
+       VALUES ($1, $2, $3, $4)
+       RETURNING uuid, username, email, isAdmin`,
       [username, email, hashedPassword, false]
     );
 
     return NextResponse.json({ user: result.rows[0] }, { status: 201 });
   } catch (error: any) {
-    if (error.code === "23505")
+    console.error("Signup error:", error);
+
+    if (error.code === "23505")  // unique violation
       return NextResponse.json({ message: "User already exists" }, { status: 400 });
+
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 };

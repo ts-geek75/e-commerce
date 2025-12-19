@@ -2,14 +2,15 @@
 
 import React from "react";
 import Image from "next/image";
-import { X, Minus, Plus } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useShoppingCart } from "../hooks";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/modules/cart/context";
+
 
 const ShoppingCart: React.FC = () => {
-  const { items, updateQuantity, subtotal } = useShoppingCart();
+  const { items, updateQuantity, subtotal } = useCart();
 
   return (
     <Sheet>

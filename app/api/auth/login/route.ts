@@ -21,8 +21,8 @@ export const POST = async (req: NextRequest) => {
 
     const token = jwt.sign(
       {
-        id: user.id,
-        isadmin: user.isadmin,
+        id: user.uuid,  
+        isAdmin: user.isadmin,    
       },
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
@@ -32,7 +32,7 @@ export const POST = async (req: NextRequest) => {
       {
         token,
         user: {
-          id: user.id,
+          id: user.uuid,
           username: user.username,
           email: user.email,
           isadmin: user.isadmin,
@@ -40,7 +40,8 @@ export const POST = async (req: NextRequest) => {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (error: any) {
+    console.error("Login error:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 };

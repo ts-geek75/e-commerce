@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
-
 export const GET = async (req: NextRequest) => {
   try {
     const { searchParams } = new URL(req.url);
-
-    const id = searchParams.get("id");
+    const uuid = searchParams.get("id"); 
     const search = searchParams.get("search");
 
-    if (id) {
+    if (uuid) {
       const result = await query(
-        "SELECT * FROM products WHERE id = $1",
-        [Number(id)]
+        "SELECT * FROM products WHERE uuid = $1",
+        [uuid]  
       );
 
       return NextResponse.json(
@@ -24,9 +22,7 @@ export const GET = async (req: NextRequest) => {
     if (search) {
       const result = await query(
         `SELECT * FROM products
-         WHERE name ILIKE $1
-         OR category ILIKE $1
-         OR description ILIKE $1
+         WHERE name ILIKE $1 OR category ILIKE $1 OR description ILIKE $1
          ORDER BY created_at DESC`,
         [`%${search}%`]
       );
@@ -60,7 +56,6 @@ export const GET = async (req: NextRequest) => {
         values.push(min, max);
         return `(price BETWEEN $${values.length - 1} AND $${values.length})`;
       });
-
       conditions.push(`(${priceConditions.join(" OR ")})`);
     }
 
@@ -77,7 +72,8 @@ export const GET = async (req: NextRequest) => {
       { products: result.rows },
       { status: 200 }
     );
-  } catch {
+  } catch (error: any) {
+    console.error("GET /products error:", error);
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }

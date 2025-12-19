@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart, Menu, Search, X, ShoppingBag as ShoppingBagIcon } from "lucide-react"; // Rename icon to avoid conflict
 import { Button } from "@/components/ui/button";
-import ShoppingBag from "@/modules/Cart/components/ShoppingCart";
+import ShoppingBag from "@/modules/cart/components/ShoppingCart";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -10,10 +10,10 @@ import useGetProducts from "@/modules/products/hooks/useGetProducts";
 const ProductsPage: React.FC = () => {
   const searchParams = useSearchParams();
 
-  const id = searchParams.get("id");
+  const uuid = searchParams.get("id"); 
 
   const filters = {
-    id: id || undefined,
+    uuid: uuid || undefined, 
     search: searchParams.get("search") || undefined,
     category: searchParams.getAll("category"),
     material: searchParams.getAll("material"),
@@ -33,7 +33,7 @@ const ProductsPage: React.FC = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/home" },
     { label: "Shop", href: "/products" },
-    ...(filters.category.length
+    ...(filters.category?.length
       ? [{ label: filters.category.join(", ") }]
       : []),
     ...(filters.search
