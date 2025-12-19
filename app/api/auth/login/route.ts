@@ -25,7 +25,7 @@ export const POST = async (req: NextRequest) => {
         isAdmin: user.isadmin,    
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
 
     return NextResponse.json(

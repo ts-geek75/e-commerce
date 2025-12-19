@@ -80,7 +80,7 @@ const ProductFilterPanel: React.FC = () => {
             ))}
           </section>
 
-          <Separator className="bg-stone-100" />
+          <Separator className="bg-gray-200" />
           <section className="space-y-4">
             <h3 className="text-primary-text">Price</h3>
             {PRICE_RANGES.map((price) => (
@@ -97,7 +97,7 @@ const ProductFilterPanel: React.FC = () => {
             ))}
           </section>
 
-          <Separator className="bg-stone-100" />
+          <Separator className="bg-gray-200" />
 
           <section className="space-y-4">
             <h3 className="text-primary-text">Material</h3>
@@ -115,7 +115,7 @@ const ProductFilterPanel: React.FC = () => {
             ))}
           </section>
 
-          <Separator className="bg-stone-100" />
+          <Separator className="bg-gray-200" />
 
           <Button
             variant="ghost"

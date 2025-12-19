@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
   } catch (error: any) {
     console.error("Signup error:", error);
 
-    if (error.code === "23505")  // unique violation
+    if (error.code === "23505") 
       return NextResponse.json({ message: "User already exists" }, { status: 400 });
 
     return NextResponse.json({ message: "Server error" }, { status: 500 });

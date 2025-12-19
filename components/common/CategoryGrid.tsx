@@ -38,7 +38,7 @@ const CategoryGrid: React.FC<Props> = ({ categories }) => {
           </div>
 
           <h2 className="mt-4 text-lg font-semibold">{item.name}</h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-primary-text-gray">
             Explore our exclusive collection of {item.name.toLowerCase()}.
           </p>
         </div>

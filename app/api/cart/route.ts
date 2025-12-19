@@ -2,13 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getUserIdFromRequest } from "@/lib/auth";
 
-// GET /api/cart → Load user cart
 export const GET = async (req: NextRequest) => {
   try {
     const userId = getUserIdFromRequest(req);
-    console.log("User ID from JWT:", userId);
 
-    // Ensure cart exists
     await query(
       `INSERT INTO carts (user_id)
        VALUES ($1)
@@ -17,10 +14,19 @@ export const GET = async (req: NextRequest) => {
     );
 
     const { rows } = await query(
-      `SELECT ci.product_id, ci.quantity
-       FROM carts c
-       JOIN cart_items ci ON ci.cart_id = c.id
-       WHERE c.user_id = $1`,
+      `
+      SELECT
+        p.uuid AS id,
+        p.name,
+        p.category,
+        p.price,
+        p.image_url,
+        ci.quantity
+      FROM carts c
+      JOIN cart_items ci ON ci.cart_id = c.id
+      JOIN products p ON p.uuid = ci.product_id
+      WHERE c.user_id = $1
+      `,
       [userId]
     );
 
@@ -34,7 +40,6 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
-// POST /api/cart/items → Add or update item
 export const POST = async (req: NextRequest) => {
   try {
     const userId = getUserIdFromRequest(req);
@@ -44,7 +49,6 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Invalid data" }, { status: 400 });
     }
 
-    // Ensure cart exists
     await query(
       `INSERT INTO carts (user_id)
        VALUES ($1)
@@ -52,7 +56,6 @@ export const POST = async (req: NextRequest) => {
       [userId]
     );
 
-    // Insert or update quantity
     await query(
       `INSERT INTO cart_items (cart_id, product_id, quantity)
        VALUES (
@@ -61,7 +64,7 @@ export const POST = async (req: NextRequest) => {
          $3
        )
        ON CONFLICT (cart_id, product_id)
-       DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity`,
+       DO UPDATE SET quantity = EXCLUDED.quantity`,
       [userId, productId, quantity]
     );
 
@@ -72,7 +75,7 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-// DELETE /api/cart/items → Remove single item
+
 export const DELETE = async (req: NextRequest) => {
   try {
     const userId = getUserIdFromRequest(req);

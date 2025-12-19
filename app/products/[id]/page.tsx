@@ -6,8 +6,7 @@ import Navbar from "@/components/Navbar";
 
 const ProductId = () => {
   const params = useParams();
-  const productId = params.id;
-
+  const productId = Array.isArray(params.id) ? params.id[0] : params.id;
   if (!productId) return <p>Product not found</p>;
 
   return (

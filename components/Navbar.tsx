@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, Menu, Search, X, ShoppingBag as ShoppingBagIcon } from "lucide-react"; // Rename icon to avoid conflict
+import { Heart, Menu, Search, X, ShoppingBag as ShoppingBagIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ShoppingBag from "@/modules/cart/components/ShoppingCart";
 
@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
             variant="ghost"
             size="icon"
             onClick={toggleMenu}
-            className="text-[#1A1A1A] hover:bg-transparent"
+            className="text-primary-text hover:bg-transparent"
           >
             {isOpen ? (
               <X size={22} strokeWidth={1.5} />
@@ -46,19 +46,19 @@ const Navbar: React.FC = () => {
         <div className="hidden flex-1 items-center gap-8 md:flex">
           <Link
             href="/products"
-            className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#1A1A1A] transition-colors hover:text-[#C5A059]"
+            className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary-text transition-colors hover:text-[#C5A059]"
           >
             Shop
           </Link>
           <Link
             href="/new"
-            className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#1A1A1A] transition-colors hover:text-[#C5A059]"
+            className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary-text transition-colors hover:text-[#C5A059]"
           >
             New In
           </Link>
           <Link
             href="/about"
-            className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#1A1A1A] transition-colors hover:text-[#C5A059]"
+            className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary-text transition-colors hover:text-[#C5A059]"
           >
             About
           </Link>
@@ -67,7 +67,7 @@ const Navbar: React.FC = () => {
         <div className="flex shrink-0 items-center">
           <Link
             href="/home"
-            className="font-serif text-xl tracking-[0.3em] text-[#1A1A1A] md:text-3xl"
+            className="font-serif text-xl tracking-[0.3em] text-primary-text md:text-3xl"
           >
             LINEA
           </Link>
@@ -135,21 +135,21 @@ const Navbar: React.FC = () => {
           <Link
             href="/products"
             onClick={toggleMenu}
-            className="text-sm font-bold uppercase tracking-[0.3em] text-[#1A1A1A]"
+            className="text-sm font-bold uppercase tracking-[0.3em] text-primary-text"
           >
             Shop
           </Link>
           <Link
             href="/new"
             onClick={toggleMenu}
-            className="text-sm font-bold uppercase tracking-[0.3em] text-[#1A1A1A]"
+            className="text-sm font-bold uppercase tracking-[0.3em] text-primary-text"
           >
             New In
           </Link>
           <Link
             href="/about"
             onClick={toggleMenu}
-            className="text-sm font-bold uppercase tracking-[0.3em] text-[#1A1A1A]"
+            className="text-sm font-bold uppercase tracking-[0.3em] text-primary-text"
           >
             About
           </Link>

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
-const SECRET = process.env.JWT_SECRET || "your_secret_here";
+const SECRET = process.env.JWT_SECRET || "1234LABDHI5678";
 
 export const getUserIdFromRequest = (req: NextRequest): number => {
   const authHeader = req.headers.get("authorization");

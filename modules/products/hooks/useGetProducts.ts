@@ -1,19 +1,5 @@
 import { useEffect, useState } from "react";
-
-interface Product {
-  uuid: string; 
-  name: string;
-  price: string;
-  category: string;
-  image_url: string;
-  images: string[];
-  description: string;
-  stock?: number;
-  material: string;
-  dimension: string;
-  weight: string;
-  editors_note: string;
-}
+import { Product } from "../types/ProductType";
 
 type ProductFilters = {
   uuid?: string; 

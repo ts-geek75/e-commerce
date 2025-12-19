@@ -38,7 +38,7 @@ export const GET = async (req: NextRequest) => {
     const prices = searchParams.getAll("price");
 
     const conditions: string[] = [];
-    const values: (string | number)[] = [];
+    const values: (string | number | string[])[] = [];
 
     if (categories.length) {
       values.push(categories);

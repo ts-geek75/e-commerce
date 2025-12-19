@@ -7,20 +7,6 @@ import { Minus, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/modules/cart/context";
 
-interface Product {
-  uuid: string;
-  name: string;
-  price: number;
-  category: string;
-  image_url: string;
-  images: string[];
-  material: string;
-  dimensions: string;
-  weight: string;
-  editors_note: string;
-  description: string;
-}
-
 interface Props {
   productId: string;
 }
@@ -58,7 +44,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
       id: product.uuid,
       name: product.name,
       category: product.category,
-      price: product.price,
+      price: Number(product.price),
       quantity,
       image: product.images[0] || "",
     });
@@ -81,7 +67,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
 
         <div className="flex flex-col items-center w-full">
           <div className="w-full flex flex-col items-center md:py-8">
-            {/* Left Column: Image Section */}
+
             <div className="flex flex-col w-full">
               {/* MOBILE VIEW: Horizontal Carousel */}
               <div className="md:hidden relative">

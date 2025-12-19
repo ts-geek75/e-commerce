@@ -4,14 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Loader from "@/components/common/loader";
 import FilterSidebar from "./ProductFilterPanel";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  image_url: string;
-}
+import { Product } from "../types/ProductType";
 
 interface Props {
   products: Product[];
@@ -51,8 +44,8 @@ const ProductGrid: React.FC<Props> = ({ products, loading }) => {
         {products.map((product) => {
           return (
             <Link
-              key={product.id}
-              href={`/products/${product.id}`}
+              key={product.uuid}
+              href={`/products/${product.uuid}`}
               className="group"
             >
               <div className="overflow-hidden">
@@ -63,7 +56,7 @@ const ProductGrid: React.FC<Props> = ({ products, loading }) => {
                 />
               </div>
               <div className="mt-3 space-y-1">
-                <h2 className="text-xs sm:text-sm text-gray-600 capitalize">
+                <h2 className="text-xs sm:text-sm text-primary-text-gray capitalize">
                   {product.category}
                 </h2>
                 <div className="flex items-center justify-between">
