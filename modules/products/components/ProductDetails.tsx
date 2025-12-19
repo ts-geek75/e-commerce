@@ -60,13 +60,13 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
 
   return (
     <div className="min-h-screen text-primary-text">
-      <div className=" pt-16 md:pt-20 px-4 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-24 items-start">
+      <div className=" pt-16 md:pt-20 px-4 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-15 items-start">
         <nav className="block md:hidden pt-2">
           <Breadcrumb items={breadcrumbItems} />
         </nav>
 
         <div className="flex flex-col items-center w-full">
-          <div className="w-full flex flex-col items-center md:py-8">
+          <div className="w-full flex flex-col items-center md:py-6">
 
             <div className="flex flex-col w-full">
               {/* MOBILE VIEW: Horizontal Carousel */}

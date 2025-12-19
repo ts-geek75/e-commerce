@@ -6,7 +6,7 @@ export interface Product {
   image_url: string;
   images: string[];
   description: string;
-  stock?: number;
+  stock: number;
   material: string;
   dimension: string;
   weight: string;
