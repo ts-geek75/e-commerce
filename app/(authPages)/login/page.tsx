@@ -1,32 +1,47 @@
 "use client";
 
 import React from "react";
+import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import * as Yup from "yup";
 
 import { Button } from "@/components/ui/button";
+import FormikInput from "@/components/form/FormikInput";
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
+const LoginSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string().required("Required"),
+});
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleSubmit = async (
+    values: LoginFormValues,
+    { setSubmitting, setErrors }: any
+  ) => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (!res.ok) return setError(data.message);
-    localStorage.setItem("token", data.token);
-    router.push("/home");
+      if (!res.ok) return setErrors({ password: data.message });
+
+      localStorage.setItem("token", data.token);
+      router.push("/home");
+    } catch (err: any) {
+      setErrors({ password: err.message || "Something went wrong" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -45,50 +60,38 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="space-y-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#C5A059]">
-                Email Address
-              </label>
-              <input
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-                onChange={handleChange}
-                required
-                className="h-12 border-b border-stone-200 bg-transparent text-sm font-light transition-colors focus:border-[#C5A059] focus:outline-none"
-              />
-            </div>
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          validationSchema={LoginSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form className="flex flex-col gap-6">
+              <div className="space-y-4">
+                <FormikInput
+                  name="email"
+                  label="Email Address"
+                  placeholder="name@example.com"
+                  type="email"
+                />
+                <FormikInput
+                  name="password"
+                  label="Password"
+                  placeholder="••••••••"
+                  type="password"
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#C5A059]">
-                Password
-              </label>
-              <input
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                onChange={handleChange}
-                required
-                className="h-12 border-b border-stone-200 bg-transparent text-sm font-light transition-colors focus:border-[#C5A059] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-center text-xs font-medium tracking-wide text-red-500">
-              {error}
-            </p>
+              <Button
+                type="submit"
+                className="mt-4 h-14 w-full bg-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-[#C5A059] hover:shadow-xl hover:shadow-[#C5A059]/20"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing In..." : "Sign In"}
+              </Button>
+            </Form>
           )}
-
-          <Button
-            type="submit"
-            className="mt-4 h-14 w-full bg-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-[#C5A059] hover:shadow-xl hover:shadow-[#C5A059]/20"
-          >
-            Sign In
-          </Button>
-        </form>
+        </Formik>
 
         <div className="mt-8 text-center">
           <Button

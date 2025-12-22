@@ -1,40 +1,55 @@
 "use client";
 
 import React from "react";
+import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import * as Yup from "yup";
 
 import { Button } from "@/components/ui/button";
+import FormikInput from "@/components/form/FormikInput";
+
+interface RegisterFormValues {
+  username: string;
+  email: string;
+  password: string;
+}
+
+const RegisterSchema = Yup.object().shape({
+  username: Yup.string().required("Required"),
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string().required("Required"),
+});
 
 const Register: React.FC = () => {
   const router = useRouter();
-  const [form, setForm] = useState({ username: "", email: "", password: "" });
-  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleSubmit = async (
+    values: RegisterFormValues,
+    { setSubmitting, setErrors }: any
+  ) => {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+      const data = await res.json();
 
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+      if (!res.ok) return setErrors({ password: data.message });
 
-    const data = await res.json();
-    if (!res.ok) return setError(data.message);
-
-    router.push("/login");
+      router.push("/login");
+    } catch (err: any) {
+      setErrors({ password: err.message || "Something went wrong" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#FBF9F6] px-6">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:40px_40px] opacity-[0.05]" />
+        <div className="absolute inset-0 bg-[radial-gradient(#C5A059_1px,transparent_1px)] bg-size-[40px_40px] opacity-[0.05]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
@@ -47,64 +62,43 @@ const Register: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="space-y-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#C5A059]">
-                Username
-              </label>
-              <input
-                name="username"
-                type="text"
-                placeholder="Your Name"
-                onChange={handleChange}
-                required
-                className="h-12 border-b border-stone-200 bg-transparent text-sm font-light transition-colors focus:border-[#C5A059] focus:outline-none"
-              />
-            </div>
+        <Formik
+          initialValues={{ username: "", email: "", password: "" }}
+          validationSchema={RegisterSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form className="flex flex-col gap-6">
+              <div className="space-y-4">
+                <FormikInput
+                  name="username"
+                  label="Username"
+                  placeholder="Your Name"
+                />
+                <FormikInput
+                  name="email"
+                  label="Email Address"
+                  placeholder="name@example.com"
+                  type="email"
+                />
+                <FormikInput
+                  name="password"
+                  label="Password"
+                  placeholder="••••••••"
+                  type="password"
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#C5A059]">
-                Email Address
-              </label>
-              <input
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-                onChange={handleChange}
-                required
-                className="h-12 border-b border-stone-200 bg-transparent text-sm font-light transition-colors focus:border-[#C5A059] focus:outline-none"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#C5A059]">
-                Password
-              </label>
-              <input
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                onChange={handleChange}
-                required
-                className="h-12 border-b border-stone-200 bg-transparent text-sm font-light transition-colors focus:border-[#C5A059] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-center text-xs font-medium tracking-wide text-red-500">
-              {error}
-            </p>
+              <Button
+                type="submit"
+                className="mt-4 h-14 w-full bg-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-[#C5A059] hover:shadow-xl hover:shadow-[#C5A059]/20"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Registering..." : "Register"}
+              </Button>
+            </Form>
           )}
-
-          <Button
-            type="submit"
-            className="mt-4 h-14 w-full bg-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-[#C5A059] hover:shadow-xl hover:shadow-[#C5A059]/20"
-          >
-            Register
-          </Button>
-        </form>
+        </Formik>
 
         <div className="mt-8 text-center">
           <Button

@@ -66,7 +66,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
 
   return (
     <div className="min-h-screen text-primary-text">
-      <div className=" pt-16 md:pt-20 px-4 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-15 items-start">
+      <div className=" pt-4 sm:pt-8 px-4 md:px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-15 items-start">
         <nav className="block md:hidden pt-2">
           <Breadcrumb items={breadcrumbItems} />
         </nav>

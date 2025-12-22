@@ -42,7 +42,7 @@ const ProductsPage: React.FC = () => {
   ];
 
   return (
-    <div className="pt-16 md:pt-20 px-4 space-y-6 pb-9">
+    <div className="pt-4 sm:pt-8 px-4 space-y-6 pb-9">
       <Breadcrumb items={breadcrumbItems} />
       <ProductGrid products={products} loading={loading} />
     </div>
