@@ -24,6 +24,9 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
   if (loading) return <Loader />;
   if (!product) return <div>Product not found</div>;
 
+  // Check if product is out of stock
+  const isOutOfStock = product.stock <= 0;
+
   const handleDotClick = (index: number) => {
     if (scrollRef.current) {
       const width = scrollRef.current.offsetWidth;
@@ -34,12 +37,16 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
       setActiveIndex(index);
     }
   };
+
   const breadcrumbItems = [
     { label: "Home", href: "/home" },
     { label: product.category, href: `/products?category=${product.category}` },
     { label: product.name, href: "#" },
   ];
+
   const handleAddToBag = () => {
+    if (isOutOfStock) return;
+
     addItem({
       id: product.uuid,
       name: product.name,
@@ -48,7 +55,6 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
       quantity,
       image: product.images[0] || "",
     });
-    console.log("Added to bag button clicked");
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -67,7 +73,6 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
 
         <div className="flex flex-col items-center w-full">
           <div className="w-full flex flex-col items-center md:py-6">
-
             <div className="flex flex-col w-full">
               {/* MOBILE VIEW: Horizontal Carousel */}
               <div className="md:hidden relative">
@@ -75,7 +80,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
                   ref={scrollRef}
                   onScroll={handleScroll}
                   style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
-                  className="flex overflow-x-auto snap-x snap-mandatory "
+                  className={`flex overflow-x-auto snap-x snap-mandatory`}
                 >
                   {product.images.map((img, idx) => (
                     <div
@@ -112,7 +117,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
               </div>
 
               {/* DESKTOP VIEW: Vertical Scrolling Stack */}
-              <div className="hidden md:flex flex-col gap-4">
+              <div className={`hidden md:flex flex-col gap-4`}>
                 {product.images.map((img, idx) => (
                   <div key={idx}>
                     <img
@@ -139,6 +144,11 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
               <h1 className="text-2xl md:text-4xl font-light tracking-tight">
                 {product.name}
               </h1>
+              {isOutOfStock && (
+                <span className="text-red-500 text-[10px] uppercase font-bold tracking-widest">
+                  Out of Stock
+                </span>
+              )}
             </div>
             <p className="text md:text-2xl font-light">
               ₹{product.price.toLocaleString()}
@@ -181,12 +191,13 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
               <span className="text-[11px] uppercase tracking-widest text-primary-text-gray">
                 Quantity
               </span>
-              <div className="flex items-center border border-gray-200 rounded-sm">
+              <div className={`flex items-center border border-gray-200 rounded-sm ${isOutOfStock ? "opacity-50 pointer-events-none" : ""}`}>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-10 w-10 rounded-none"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={isOutOfStock}
                 >
                   <Minus size={14} strokeWidth={1} />
                 </Button>
@@ -198,6 +209,7 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
                   size="icon"
                   className="h-10 w-10 rounded-none"
                   onClick={() => setQuantity(quantity + 1)}
+                  disabled={isOutOfStock}
                 >
                   <Plus size={14} strokeWidth={1} />
                 </Button>
@@ -205,10 +217,15 @@ const ProductDetails: React.FC<Props> = ({ productId }) => {
             </div>
 
             <Button
-              className="w-full bg-[#1a1a1a] text-white py-7 rounded-none text-[12px] uppercase tracking-[0.25em] font-medium hover:bg-black transition-all"
-              onClick={handleAddToBag} // add onClick here
+              className={`w-full py-7 rounded-none text-[12px] uppercase tracking-[0.25em] font-medium transition-all ${
+                isOutOfStock 
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300" 
+                : "bg-[#1a1a1a] text-white hover:bg-black"
+              }`}
+              onClick={handleAddToBag}
+              disabled={isOutOfStock}
             >
-              Add to Bag
+              {isOutOfStock ? "Out of Stock" : "Add to Bag"}
             </Button>
           </div>
 

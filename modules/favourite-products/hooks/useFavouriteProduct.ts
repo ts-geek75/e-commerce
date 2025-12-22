@@ -2,103 +2,81 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-export interface Product {
+export interface FavouriteProduct {
   uuid: string;
   name: string;
-  price: number;
-  category: string;
-  image_url: string;
-  stock?: number;
+  image: string;  
+  price: number | string;
+  category?: string;
 }
 
-interface UseFavouritesReturn {
-  favourites: Product[];
-  loading: boolean;
-  error: string | null;
-  addToFavourites: (productUuid: string) => Promise<void>;
-  removeFromFavourites: (productUuid: string) => Promise<void>;
-  isFavourite: (productUuid: string) => boolean;
-}
-
-const API_URL = "/api/favourites"; 
-
-const useFavourites = (): UseFavouritesReturn => {
-  const [favourites, setFavourites] = useState<Product[]>([]);
+export const useFavourites = () => {
+  const [favourites, setFavourites] = useState<FavouriteProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const getToken = () => localStorage.getItem("token");
 
   const fetchFavourites = useCallback(async () => {
-    setLoading(true);
     try {
-      const res = await fetch(API_URL, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      const res = await fetch("/api/favourites", {
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
-      if (!res.ok) throw new Error("Failed to fetch favourites");
       const data = await res.json();
-      setFavourites(data.products || []);
-    } catch (err: any) {
-      setError(err.message);
+      if (res.ok) {
+        const mapped = (data.products || []).map((p: any) => ({
+          uuid: p.product_uuid,
+          name: p.name,
+          image: p.image_url?.split(",")[0].trim(),
+          price: p.price,
+          category: p.category,
+        }));
+        setFavourites(mapped);
+      }
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const addFavourite = async (product: FavouriteProduct) => {
+    setFavourites((prev) => [product, ...prev]);
+    try {
+      const res = await fetch("/api/favourites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ productUuid: product.uuid }),
+      });
+      if (!res.ok) throw new Error("Failed to add");
+    } catch {
+      setFavourites((prev) => prev.filter((f) => f.uuid !== product.uuid));
+    }
+  };
+
+  const removeFavourite = async (productUuid: string) => {
+    const previousFavourites = [...favourites];
+    setFavourites((prev) => prev.filter((f) => f.uuid !== productUuid));
+    try {
+      const res = await fetch("/api/favourites", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ productUuid }),
+      });
+      if (!res.ok) throw new Error("Failed to remove");
+    } catch {
+      setFavourites(previousFavourites);
+    }
+  };
+
   useEffect(() => {
     fetchFavourites();
   }, [fetchFavourites]);
 
-  const addToFavourites = async (productUuid: string) => {
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ productUuid }),
-      });
-      if (!res.ok) throw new Error("Failed to add to favourites");
-      setFavourites((prev) => [...prev, { uuid: productUuid } as Product]);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const removeFromFavourites = async (productUuid: string) => {
-    try {
-      const res = await fetch(API_URL, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ productUuid }),
-      });
-      if (!res.ok) throw new Error("Failed to remove from favourites");
-      setFavourites((prev) =>
-        prev.filter((product) => product.uuid !== productUuid)
-      );
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const isFavourite = (productUuid: string) => {
-    return favourites.some((product) => product.uuid === productUuid);
-  };
-
-  return {
-    favourites,
-    loading,
-    error,
-    addToFavourites,
-    removeFromFavourites,
-    isFavourite,
-  };
+  return { favourites, loading, addFavourite, removeFavourite };
 };
-
-export default useFavourites;

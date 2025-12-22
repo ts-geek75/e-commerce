@@ -1,3 +1,4 @@
+import { FavouriteProvider } from "@/modules/favourite-products/context/FavouriteProductsContext";
 import "./globals.css";
 import { ShoppingCartProvider } from "@/modules/cart/context";
 
@@ -12,7 +13,9 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <html>
       <body>
         <ShoppingCartProvider>
+          <FavouriteProvider>
           {children}
+          </FavouriteProvider>
         </ShoppingCartProvider>
       </body>
     </html>
