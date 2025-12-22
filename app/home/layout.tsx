@@ -2,34 +2,29 @@
 
 import React, { useEffect, useState } from "react";
 import jwt from "jsonwebtoken";
-import Loader from "@/components/common/loader";
-import UserHomePage from "@/modules/home/user/UserHomePage";
-import AdminHomePage from "@/modules/home/admin/AdminHomePage";
 
-const Dashboard: React.FC = () => {
+import Loader from "@/components/common/loader";
+import Navbar from "@/components/Navbar";
+
+const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const decoded: any = jwt.decode(token);
-    if (!decoded) return;
-
+    const decoded = jwt.decode(token);
     setUser(decoded);
   }, []);
 
   if (!user) return <Loader />;
 
-  if (user.isadmin) {
-    return <AdminHomePage />;
-  }
-
   return (
     <>
-      <UserHomePage />
+      <Navbar />
+      {children}
     </>
   );
 };
 
-export default Dashboard;
+export default ProtectedLayout;

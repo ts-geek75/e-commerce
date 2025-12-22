@@ -11,7 +11,6 @@ const ProductId = () => {
 
   return (
     <>
-      <Navbar />
       <ProductDetails productId={productId} />
     </>
   );

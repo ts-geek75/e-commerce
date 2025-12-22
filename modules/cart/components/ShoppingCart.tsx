@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/modules/cart/context";
 import ConfirmRemoveDialog from "@/components/common/ConfirmationDialog";
 import { CartItem } from "../hooks/useShoppingCart";
+import Link from "next/link";
 
 const ShoppingCart: React.FC = () => {
   const { items, updateQuantity, removeItem, subtotal } = useCart();
@@ -125,17 +126,18 @@ const ShoppingCart: React.FC = () => {
             Shipping and taxes calculated at checkout
           </p>
 
-          <div className="space-y-3">
-            <Button className="w-full bg-black text-white rounded-none h-[55px]">
-              Proceed to Checkout
-            </Button>
+          <div className="space-y-2 pb-3">
+            <Link href="/checkout" className="block">
+              <Button className="w-full bg-black text-white rounded-xl h-[55px]">
+                Proceed to Checkout
+              </Button>
+            </Link>
             <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full rounded-none h-[55px]"
-              >
+              <Link href ="/products" className="block">
+              <Button variant="outline" className="w-full rounded-xl h-[55px]">
                 Continue Shopping
               </Button>
+              </Link>
             </SheetTrigger>
           </div>
         </div>

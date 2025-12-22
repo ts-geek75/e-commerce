@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ShoppingBag from "@/modules/cart/components/ShoppingCart";
-// Import your favorites component here
 import FavoritesSheet from "@/modules/favourite-products/FavouriteProducts"; 
 
 const Navbar: React.FC = () => {
