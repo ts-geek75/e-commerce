@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 import Loader from "@/components/common/loader";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/footer";
 
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
@@ -23,6 +24,7 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     <>
       <Navbar />
       {children}
+      <Footer />
     </>
   );
 };
