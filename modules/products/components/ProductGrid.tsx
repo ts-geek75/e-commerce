@@ -5,8 +5,12 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import Loader from "@/components/common/loader";
 import FilterSidebar from "./ProductFilterPanel";
-import { Product } from "../types/ProductType";
-import { useFavourites } from "../../favourite-products//context/FavouriteProductsContext";
+import { Product } from "../../../types/ProductType";
+import {
+  useGetFavouritesQuery,
+  useAddFavouriteMutation,
+  useRemoveFavouriteMutation,
+} from "@/redux/apis/FavouritesApi";
 
 interface Props {
   products: Product[];
@@ -14,12 +18,10 @@ interface Props {
 }
 
 const ProductGrid: React.FC<Props> = ({ products, loading }) => {
-  const {
-    favourites,
-    loading: favLoading,
-    addFavourite,
-    removeFavourite,
-  } = useFavourites();
+  const { data: favourites = [], isLoading: favLoading } =
+    useGetFavouritesQuery();
+  const [addFavourite] = useAddFavouriteMutation();
+  const [removeFavourite] = useRemoveFavouriteMutation();
 
   const isProductLiked = (uuid: string) =>
     favourites.some((f) => f.uuid === uuid);
@@ -68,11 +70,10 @@ const ProductGrid: React.FC<Props> = ({ products, loading }) => {
         <FilterSidebar />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
         {products.map((product) => {
           const isOutOfStock = product.stock <= 0;
           const isLiked = isProductLiked(product.uuid);
-
           return (
             <div key={product.uuid} className="group relative">
               <button
@@ -82,15 +83,13 @@ const ProductGrid: React.FC<Props> = ({ products, loading }) => {
                 <Heart
                   size={18}
                   className={`transition-colors duration-300 ${
-                    isLiked ? "fill-red-400 text-red-400" : "text-primary-text-gray"
+                    isLiked
+                      ? "fill-red-400 text-red-400"
+                      : "text-primary-text-gray"
                   }`}
                 />
               </button>
-
-              <Link
-                href={`/products/${product.uuid}`}
-
-              >
+              <Link href={`/products/${product.uuid}`}>
                 <div
                   className={`relative overflow-hidden ${
                     isOutOfStock ? "opacity-60" : ""
@@ -98,10 +97,9 @@ const ProductGrid: React.FC<Props> = ({ products, loading }) => {
                 >
                   <img
                     src={product.image_url.split(",")[0].trim()}
-                    alt={product.name}
                     className="h-40 sm:h-65 w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    alt={product.name}
                   />
-
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <span className="text-white text-xs sm:text-sm font-bold uppercase bg-black/60 px-3 py-1">

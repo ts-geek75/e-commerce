@@ -4,14 +4,9 @@ import React from "react";
 import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
 import * as Yup from "yup";
-
 import { Button } from "@/components/ui/button";
 import FormikInput from "@/components/form/FormikInput";
-
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
+import { useLoginMutation } from "@/redux/apis/authApi";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
@@ -20,25 +15,19 @@ const LoginSchema = Yup.object().shape({
 
 const Login: React.FC = () => {
   const router = useRouter();
+  const [login] = useLoginMutation();
 
   const handleSubmit = async (
-    values: LoginFormValues,
+    values: any,
     { setSubmitting, setErrors }: any
   ) => {
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const data = await res.json();
-
-      if (!res.ok) return setErrors({ password: data.message });
+      const data = await login(values).unwrap();
 
       localStorage.setItem("token", data.token);
       router.push("/home");
     } catch (err: any) {
-      setErrors({ password: err.message || "Something went wrong" });
+      setErrors({ password: err.data?.message || "Something went wrong" });
     } finally {
       setSubmitting(false);
     }
@@ -67,24 +56,11 @@ const Login: React.FC = () => {
         >
           {({ isSubmitting }) => (
             <Form className="flex flex-col gap-6">
-              <div className="space-y-4">
-                <FormikInput
-                  name="email"
-                  label="Email Address"
-                  placeholder="name@example.com"
-                  type="email"
-                />
-                <FormikInput
-                  name="password"
-                  label="Password"
-                  placeholder="••••••••"
-                  type="password"
-                />
-              </div>
-
+              <FormikInput name="email" label="Email Address" type="email" />
+              <FormikInput name="password" label="Password" type="password" />
               <Button
                 type="submit"
-                className="mt-4 h-14 w-full bg-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-[#C5A059] hover:shadow-xl hover:shadow-[#C5A059]/20"
+                className="mt-4 h-14 w-full bg-[#1A1A1A]"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Signing In..." : "Sign In"}
@@ -92,16 +68,6 @@ const Login: React.FC = () => {
             </Form>
           )}
         </Formik>
-
-        <div className="mt-8 text-center">
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/")}
-            className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 transition-colors hover:bg-transparent hover:text-[#C5A059]"
-          >
-            Return to Store
-          </Button>
-        </div>
       </div>
     </div>
   );

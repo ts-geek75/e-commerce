@@ -1,98 +1,83 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import ConfirmRemoveDialog from "@/components/common/ConfirmationDialog";
-import { useCart } from "@/modules/cart/context";
-import { CartItem } from "../cart/hooks/useShoppingCart";
+import {
+  useGetCartQuery,
+  useUpdateQuantityMutation,
+  useRemoveItemMutation,
+  CartItem,
+} from "@/redux/apis/CartApi";
 
 const OrderSummary: React.FC = () => {
-  const { items, updateQuantity, removeItem, subtotal } = useCart();
-  const [itemToRemove, setItemToRemove] = React.useState<CartItem | null>(null);
+  const { data: items = [] } = useGetCartQuery();
+  const [updateQuantity] = useUpdateQuantityMutation();
+  const [removeItem] = useRemoveItemMutation();
+
+  const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
+  const subtotal = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   return (
     <div className="w-full flex flex-col">
       <div className="flex items-center gap-3">
         <ShoppingBag size={20} />
-        <h2 className="text-lg font-normal text-primary-text">
-          Order Summary ({items.length})
-        </h2>
+        <h2 className="text-lg font-medium">Order Summary ({items.length})</h2>
       </div>
 
       <Separator />
 
-      <div className="flex-1 overflow-y-auto py-4 space-y-8">
-        {items.length === 0 ? (
-            <p className="text-sm text-primary-text-gray">Your cart is empty.</p>
-        ) : (
-          items.map((item) => (
-            <div key={item.id} className="flex gap-5">
-              <div className="w-24 shrink-0">
-                {item.image ? (
-                  <Image
-                    src={item.image}
-                    alt={item.name || "Product image"}
-                    width={70}
-                    height={70}
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="h-24 w-24 flex items-center justify-center text-xs">
-                    No image
-                  </div>
-                )}
+      <div className="py-4 space-y-6">
+        {items.map((item) => (
+          <div key={item.id} className="flex gap-4">
+            <div className="w-16 h-20 relative bg-gray-50">
+              <Image
+                src={item.image}
+                alt={item.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">{item.name}</span>
+                <span className="text-sm">₹{item.price}</span>
               </div>
-
-              <div className="flex flex-col flex-1">
-                <div className="flex justify-between">
-                  <div>
-                    <p className="text-xs text-primary-text-gray">
-                      {item.category}
-                    </p>
-                    <h3 className="text-sm text-primary-text">
-                      {item.name}
-                    </h3>
-                  </div>
-                  <p className="text-sm text-primary-text">
-                    ₹{item.price}
-                  </p>
-                </div>
-
-                <div className="mt-auto">
-                  <div className="flex items-center border border-stone-200 w-fit">
-                    <button
-                      className="px-3 py-2"
-                      onClick={() => {
-                        if (item.quantity <= 1) {
-                          setItemToRemove(item);
-                        } else {
-                          updateQuantity(item.id, item.quantity - 1);
-                        }
-                      }}
-                    >
-                      <Minus size={14} />
-                    </button>
-
-                    <span className="w-10 text-center">
-                      {item.quantity}
-                    </span>
-
-                    <button
-                      className="px-3 py-2"
-                      onClick={() =>
-                        updateQuantity(item.id, item.quantity + 1)
-                      }
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                </div>
+              <div className="flex items-center border w-fit rounded">
+                <button
+                  className="px-2"
+                  onClick={() =>
+                    item.quantity > 1
+                      ? updateQuantity({
+                          productId: item.id,
+                          quantity: item.quantity - 1,
+                        })
+                      : setItemToRemove(item)
+                  }
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="px-2 text-xs">{item.quantity}</span>
+                <button
+                  className="px-2"
+                  onClick={() =>
+                    updateQuantity({
+                      productId: item.id,
+                      quantity: item.quantity + 1,
+                    })
+                  }
+                >
+                  <Plus size={12} />
+                </button>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
 
       <Separator className="mt-3" />
@@ -108,7 +93,10 @@ const OrderSummary: React.FC = () => {
         item={itemToRemove}
         open={!!itemToRemove}
         onClose={() => setItemToRemove(null)}
-        onConfirm={(item) => removeItem(item.id)}
+        onConfirm={(item) => {
+          removeItem(item.id);
+          setItemToRemove(null);
+        }}
       />
     </div>
   );

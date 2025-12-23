@@ -5,11 +5,10 @@ import { useSearchParams } from "next/navigation";
 
 import Breadcrumb from "@/components/common/Breadcrumb";
 import { ProductGrid } from "@/modules/products/components";
-import useGetProducts from "@/modules/products/hooks/useGetProducts";
+import { useGetProductsQuery } from "@/redux/apis/ProductsApi";
 
 const ProductsPage: React.FC = () => {
   const searchParams = useSearchParams();
-
   const uuid = searchParams.get("id"); 
 
   const filters = {
@@ -20,20 +19,13 @@ const ProductsPage: React.FC = () => {
     price: searchParams.getAll("price"),
   };
 
-  const normalizedFilters = Object.fromEntries(
-    Object.entries(filters).filter(
-      ([, value]) =>
-        value !== undefined &&
-        !(Array.isArray(value) && value.length === 0)
-    )
-  );
 
-  const { products, loading } = useGetProducts(normalizedFilters);
+  const { data: products = [], isLoading: loading } = useGetProductsQuery(filters);
 
   const breadcrumbItems = [
     { label: "Home", href: "/home" },
     { label: "Shop", href: "/products" },
-    ...(filters.category?.length
+    ...(filters.category && filters.category.length > 0
       ? [{ label: filters.category.join(", ") }]
       : []),
     ...(filters.search

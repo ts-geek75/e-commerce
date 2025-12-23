@@ -4,15 +4,9 @@ import React from "react";
 import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
 import * as Yup from "yup";
-
 import { Button } from "@/components/ui/button";
 import FormikInput from "@/components/form/FormikInput";
-
-interface RegisterFormValues {
-  username: string;
-  email: string;
-  password: string;
-}
+import { useRegisterMutation } from "@/redux/apis/authApi";
 
 const RegisterSchema = Yup.object().shape({
   username: Yup.string().required("Required"),
@@ -22,22 +16,14 @@ const RegisterSchema = Yup.object().shape({
 
 const Register: React.FC = () => {
   const router = useRouter();
+  const [register] = useRegisterMutation();
 
   const handleSubmit = async (
-    values: RegisterFormValues,
+    values: any,
     { setSubmitting, setErrors }: any
   ) => {
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) return setErrors({ password: data.message });
-
+      await register(values).unwrap();
       router.push("/login");
     } catch (err: any) {
       setErrors({ password: err.message || "Something went wrong" });
@@ -61,7 +47,6 @@ const Register: React.FC = () => {
             Join the LINEA inner circle for exclusive access
           </p>
         </div>
-
         <Formik
           initialValues={{ username: "", email: "", password: "" }}
           validationSchema={RegisterSchema}
@@ -69,26 +54,9 @@ const Register: React.FC = () => {
         >
           {({ isSubmitting }) => (
             <Form className="flex flex-col gap-6">
-              <div className="space-y-4">
-                <FormikInput
-                  name="username"
-                  label="Username"
-                  placeholder="Your Name"
-                />
-                <FormikInput
-                  name="email"
-                  label="Email Address"
-                  placeholder="name@example.com"
-                  type="email"
-                />
-                <FormikInput
-                  name="password"
-                  label="Password"
-                  placeholder="••••••••"
-                  type="password"
-                />
-              </div>
-
+              <FormikInput name="username" label="Username" />
+              <FormikInput name="email" label="Email Address" type="email" />
+              <FormikInput name="password" label="Password" type="password" />
               <Button
                 type="submit"
                 className="mt-4 h-14 w-full bg-[#1A1A1A] text-[11px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-[#C5A059] hover:shadow-xl hover:shadow-[#C5A059]/20"

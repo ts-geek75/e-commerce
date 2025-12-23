@@ -3,16 +3,24 @@
 import React from "react";
 import ProductCategoryDisplay from "@/components/common/CategoryGrid";
 import ProductGrid from "@/modules/products/components/ProductGrid";
-import { useGetProducts } from "../../products/hooks";
+import { useGetProductsQuery } from "@/redux/apis/ProductsApi";
 
 const UserHomePage: React.FC = () => {
   const categories = [
-    { url: "/background/Bracelet1.png", href: "/shop/bracelets", name: "Bracelets" },
-    { url: "/background/Earrings1.png", href: "/shop/earrings", name: "Earrings" },
+    {
+      url: "/background/Bracelet1.png",
+      href: "/shop/bracelets",
+      name: "Bracelets",
+    },
+    {
+      url: "/background/Earrings1.png",
+      href: "/shop/earrings",
+      name: "Earrings",
+    },
     { url: "/background/Ring1.png", href: "/shop/rings", name: "Rings" },
   ];
 
-  const { products, loading } = useGetProducts();
+  const { data: products = [], isLoading: loading } = useGetProductsQuery({});
 
   return (
     <div className="min-h-screen">

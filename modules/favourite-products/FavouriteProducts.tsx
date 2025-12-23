@@ -9,41 +9,40 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useFavourites } from "./context/FavouriteProductsContext";
-import { Loader } from "@/components/common";
+import Loader from "@/components/common/loader";
 import Link from "next/link";
+import {
+  useGetFavouritesQuery,
+  useRemoveFavouriteMutation,
+} from "@/redux/apis/FavouritesApi";
 
 const FavoriteProducts: React.FC = () => {
-  const { favourites, loading, removeFavourite } = useFavourites();
+  const { data: favourites = [], isLoading } = useGetFavouritesQuery();
+  const [removeFavourite] = useRemoveFavouriteMutation();
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <button className="relative p-2 hover:bg-gray-100 rounded-full">
           <Heart size={20} />
           {favourites.length > 0 && (
-            <span className="absolute top-0 right-0 bg-red-400 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+            <span className="absolute top-0 right-0 bg-red-400 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
               {favourites.length}
             </span>
           )}
         </button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-full max-w-[300px] flex flex-col">
+      <SheetContent side="right" className="w-full max-w-[350px] flex flex-col">
         <SheetHeader className="border-b pb-4">
-          <SheetTitle className="text-xl text-primary-text">Your Favorites</SheetTitle>
+          <SheetTitle>Your Favorites</SheetTitle>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto py-4">
-          {loading ? (
-            <div className="flex justify-center py-10">
-              <Loader />
-            </div>
+        <div className="flex-1 overflow-y-auto py-4 px-4">
+          {isLoading ? (
+            <Loader />
           ) : favourites.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full space-y-2 text-primary-text-gray">
-              <Heart size={40} strokeWidth={1} />
-              <p>No favorites yet.</p>
-            </div>
+            <p className="text-center text-gray-500 mt-10">No favorites yet.</p>
           ) : (
             <div className="space-y-4">
               {favourites.map((item) => (
@@ -51,6 +50,7 @@ const FavoriteProducts: React.FC = () => {
                   key={item.uuid}
                   className=" mx-4 flex items-center gap-4 p-3 border rounded-xl hover:shadow-sm transition-shadow"
                 >
+
                   <Link
                     href={`/products/${item.uuid}`}
                     className="text-sm font-semibold truncate block hover:underline"
@@ -74,7 +74,6 @@ const FavoriteProducts: React.FC = () => {
                       ₹{item.price}
                     </p>
                   </div>
-
                   <button
                     onClick={() => removeFavourite(item.uuid)}
                     className="p-2 text-primary-text-gray hover:text-red-400 transition-colors"
@@ -86,7 +85,6 @@ const FavoriteProducts: React.FC = () => {
             </div>
           )}
         </div>
-
         {favourites.length > 0 && (
           <div className="border-t p-6">
             <Link
